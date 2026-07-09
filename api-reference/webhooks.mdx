@@ -1,0 +1,115 @@
+---
+title: "Webhooks API — register and manage event endpoints"
+sidebarTitle: "Webhooks"
+description: "REST endpoints for webhook management: POST /webhooks to register, GET /webhooks to list, and DELETE /webhooks/{id} to remove an endpoint."
+---
+
+The Webhooks API lets you register HTTPS endpoints that receive real-time event notifications from the Google platform. Use it to create, list, and delete webhook subscriptions programmatically. All webhook endpoints require the `webhooks:manage` scope.
+
+## List webhooks
+
+```
+GET https://api.google.com/v1/webhooks
+```
+
+**Required scope:** `webhooks:manage`
+
+### Example
+
+```bash curl
+curl "https://api.google.com/v1/webhooks" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```json 200 OK
+{
+  "data": [
+    {
+      "id": "wh_01def456",
+      "url": "https://your-app.com/webhooks/google",
+      "events": ["account.created", "account.updated"],
+      "status": "active",
+      "created_at": "2024-06-10T12:00:00Z"
+    }
+  ],
+  "total": 1
+}
+```
+
+---
+
+## Create webhook
+
+```
+POST https://api.google.com/v1/webhooks
+```
+
+**Required scope:** `webhooks:manage`
+
+### Request body
+
+<ParamField body="url" type="string" required>
+  The HTTPS URL of your webhook endpoint. Must use `https://`.
+</ParamField>
+
+<ParamField body="events" type="array" required>
+  Array of event types to subscribe to. At least one event is required.
+
+  Accepted values: `account.created`, `account.updated`, `account.deleted`, `key.created`, `key.revoked`
+</ParamField>
+
+### Example
+
+```bash curl
+curl -X POST "https://api.google.com/v1/webhooks" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://your-app.com/webhooks/google",
+    "events": ["account.created", "account.updated"]
+  }'
+```
+
+```json 201 Created
+{
+  "id": "wh_01def456",
+  "url": "https://your-app.com/webhooks/google",
+  "events": ["account.created", "account.updated"],
+  "status": "active",
+  "created_at": "2024-06-10T12:00:00Z"
+}
+```
+
+### Error responses
+
+| Status | Code | Description |
+|---|---|---|
+| `400` | `validation_error` | `url` is not a valid HTTPS URL, or `events` is empty |
+| `409` | `duplicate` | A webhook already exists for this URL |
+
+---
+
+## Delete webhook
+
+```
+DELETE https://api.google.com/v1/webhooks/{id}
+```
+
+**Required scope:** `webhooks:manage`
+
+### Path parameters
+
+<ParamField path="id" type="string" required>
+  The webhook ID to delete (prefixed with `wh_`).
+</ParamField>
+
+### Example
+
+```bash curl
+curl -X DELETE "https://api.google.com/v1/webhooks/wh_01def456" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+A successful deletion returns `HTTP 204 No Content` with an empty body.
+
+<Warning>Deleting a webhook immediately stops all event deliveries to that endpoint. There is no recovery — you must create a new webhook to resume delivery.</Warning>

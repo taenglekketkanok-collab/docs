@@ -1,0 +1,80 @@
+---
+title: "Configure your Google account and workspace settings"
+sidebarTitle: "Settings"
+description: "Manage your Google account preferences, team members, notification settings, and plan details from the settings dashboard."
+---
+
+The Google settings dashboard gives you full control over your account, team access, notifications, and subscription. This page covers every settings section and what you can configure in each.
+
+## Accessing settings
+
+Log in to your Google account and click your profile icon in the top-right corner, then select **Settings**. Settings are organized into the following sections:
+
+## Account
+
+The **Account** tab controls your core profile information:
+
+| Setting | Description |
+|---|---|
+| Display name | Your name as shown across the platform |
+| Email address | Your login and notification email |
+| Password | Change your account password |
+| Time zone | Sets the time zone for timestamps and scheduled events |
+| Language | Interface language preference |
+
+## API Keys
+
+Manage all API keys associated with your account from the **API Keys** tab:
+
+- **Create** new keys with specific name and scopes
+- **View** key names, prefixes, scopes, and last-used timestamps
+- **Revoke** keys that are no longer needed or may be compromised
+
+See the [API Keys concept guide](/concepts/api-keys) for detailed guidance on scopes and rotation.
+
+## Webhooks
+
+The **Webhooks** tab shows all registered webhook endpoints:
+
+- Add new endpoints and select which events they receive
+- View delivery logs and retry history for each endpoint
+- Temporarily pause a webhook without deleting it
+- Delete endpoints that are no longer active
+
+See the [Webhooks guide](/guides/webhooks) for full configuration details.
+
+## Notifications
+
+Configure email notifications from the **Notifications** tab:
+
+| Notification | Default | Description |
+|---|---|---|
+| API key created | Enabled | Alert when a new API key is generated on your account |
+| API key revoked | Enabled | Alert when a key is revoked |
+| Rate limit warnings | Enabled | Alert when you approach your request quota |
+| Webhook failures | Enabled | Alert when a webhook endpoint repeatedly fails delivery |
+| Billing updates | Enabled | Invoices and plan change confirmations |
+
+## Billing & Plan
+
+The **Billing** tab shows your current plan, usage metrics, and payment method:
+
+- View your current plan and monthly request usage
+- Upgrade or downgrade your subscription
+- Update your payment method or billing address
+- Download past invoices
+
+<Note>Downgrading your plan takes effect at the end of your current billing cycle. API key limits and rate limits adjust immediately upon upgrade.</Note>
+
+## Team access
+
+On Pro and Enterprise plans, invite team members from the **Team** tab:
+
+| Role | Permissions |
+|---|---|
+| Owner | Full access — can manage billing, revoke keys, and remove members |
+| Admin | Can create/revoke API keys and manage webhooks — cannot manage billing |
+| Developer | Can view keys and webhooks — cannot create or revoke them |
+| Viewer | Read-only access to account resources |
+
+To invite a team member, click **Invite Member**, enter their email address, choose a role, and click **Send Invite**. The invitee receives an email with a join link valid for 48 hours.

@@ -1,0 +1,62 @@
+---
+title: "Accounts: managing users and organizations"
+sidebarTitle: "Accounts"
+description: "Accounts represent users or organizations in the Google platform. Learn how accounts are structured, how to manage them, and how they relate to other resources."
+---
+
+An account is the central resource in the Google platform. Every API key, webhook, and integration belongs to an account. Understanding how accounts are structured helps you design integrations that correctly scope permissions and ownership.
+
+## Account object
+
+The account object represents a user or organization:
+
+```json
+{
+  "id": "acc_01abc123",
+  "name": "Acme Corp",
+  "email": "admin@acme.com",
+  "plan": "pro",
+  "status": "active",
+  "created_at": "2024-01-15T10:30:00Z",
+  "updated_at": "2024-06-01T08:00:00Z"
+}
+```
+
+### Fields
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string | Unique identifier prefixed with `acc_` |
+| `name` | string | Display name of the account |
+| `email` | string | Primary email address |
+| `plan` | string | Subscription plan: `free`, `pro`, or `enterprise` |
+| `status` | string | Account status: `active`, `suspended`, or `closed` |
+| `created_at` | ISO 8601 | Timestamp when the account was created |
+| `updated_at` | ISO 8601 | Timestamp of the most recent update |
+
+## Account lifecycle
+
+<Steps>
+  <Step title="Create">
+    Accounts are created when a user registers. You can also create accounts programmatically via `POST /v1/accounts`.
+  </Step>
+  <Step title="Activate">
+    A newly created account is `active` by default. Email verification may be required depending on your plan.
+  </Step>
+  <Step title="Update">
+    Use `PATCH /v1/accounts/{id}` to update the `name`, `email`, or other mutable fields.
+  </Step>
+  <Step title="Close">
+    Closing an account sets its status to `closed` and revokes all associated API keys. This action is irreversible.
+  </Step>
+</Steps>
+
+## Account statuses
+
+| Status | Meaning |
+|---|---|
+| `active` | The account is in good standing and all operations are permitted |
+| `suspended` | The account is temporarily restricted — read operations succeed but writes are blocked |
+| `closed` | The account is permanently closed — all operations return `403` |
+
+<Note>Attempts to use a closed account's API key return `401 unauthorized` regardless of the key's own validity.</Note>

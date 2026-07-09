@@ -1,0 +1,113 @@
+---
+title: "Handle errors and build resilient integrations"
+sidebarTitle: "Error Handling"
+description: "Understand Google API error codes, implement retry logic with exponential backoff, and design integrations that gracefully handle failures."
+---
+
+The Google API returns structured error responses that make it straightforward to understand and handle failures. This guide covers the full set of error codes, recommended retry strategies, and patterns for building resilient integrations.
+
+## Error response format
+
+All API errors return a consistent JSON structure:
+
+```json
+{
+  "error": {
+    "code": "not_found",
+    "message": "Account acc_01abc123 was not found.",
+    "status": 404,
+    "request_id": "req_01jkl012"
+  }
+}
+```
+
+Include the `request_id` when contacting support — it identifies the exact request in our logs.
+
+## HTTP status codes
+
+| Status | Meaning | Action |
+|---|---|---|
+| `200` | Success | None needed |
+| `400` | Bad request | Fix the request parameters |
+| `401` | Unauthorized | Check your API key |
+| `403` | Forbidden | Check key scopes or account status |
+| `404` | Not found | Verify the resource ID |
+| `409` | Conflict | A duplicate resource exists |
+| `422` | Validation error | Fix the request body fields |
+| `429` | Rate limit exceeded | Back off and retry |
+| `500` | Server error | Retry with exponential backoff |
+| `503` | Service unavailable | Retry after a short delay |
+
+## Error codes
+
+| Code | HTTP Status | Description |
+|---|---|---|
+| `unauthorized` | 401 | Missing or invalid API key |
+| `key_expired` | 401 | API key has expired |
+| `insufficient_scope` | 403 | Key lacks required permission |
+| `account_suspended` | 403 | Account is suspended |
+| `not_found` | 404 | Requested resource does not exist |
+| `duplicate` | 409 | Resource already exists |
+| `validation_error` | 422 | Request body failed validation |
+| `rate_limit_exceeded` | 429 | Too many requests |
+| `internal_error` | 500 | Unexpected server error |
+
+## Implement exponential backoff
+
+For `429` and `5xx` errors, retry with exponential backoff:
+
+<CodeGroup>
+```javascript Node.js
+async function withRetry(fn, maxRetries = 5) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      const isRetryable = [429, 500, 503].includes(error.status);
+      const isLastAttempt = attempt === maxRetries;
+
+      if (!isRetryable || isLastAttempt) throw error;
+
+      const delay = Math.min(1000 * Math.pow(2, attempt), 30000);
+      const jitter = Math.random() * 1000;
+      await new Promise(resolve => setTimeout(resolve, delay + jitter));
+    }
+  }
+}
+
+// Usage
+const result = await withRetry(() => search('hello world'));
+```
+```python Python
+import time
+import random
+
+def with_retry(fn, max_retries=5):
+    for attempt in range(max_retries + 1):
+        try:
+            return fn()
+        except APIError as e:
+            retryable = e.status in (429, 500, 503)
+            if not retryable or attempt == max_retries:
+                raise
+
+            delay = min(1.0 * (2 ** attempt), 30.0)
+            jitter = random.uniform(0, 1)
+            time.sleep(delay + jitter)
+```
+</CodeGroup>
+
+## Rate limit headers
+
+Every API response includes rate limit information:
+
+```http
+X-RateLimit-Limit: 600
+X-RateLimit-Remaining: 245
+X-RateLimit-Reset: 1718025600
+Retry-After: 32
+```
+
+Use `X-RateLimit-Remaining` to proactively slow down before you hit the limit. When you receive `429`, wait until `Retry-After` seconds have elapsed before retrying.
+
+<Note>Add jitter (a small random delay) to your retry intervals to prevent a large number of clients from retrying at the same time.</Note>

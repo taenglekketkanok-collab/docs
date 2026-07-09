@@ -1,0 +1,74 @@
+---
+title: "How Google's platform works: core concepts"
+sidebarTitle: "Overview"
+description: "Understand the building blocks of the Google platform — how requests flow, how data is organized, and how the key resources relate to each other."
+---
+
+The Google platform is built around a small set of core resources that power all integrations. Understanding how these resources relate to each other will help you design robust integrations and make the most of the API.
+
+## Platform architecture
+
+At a high level, every interaction with Google follows this flow:
+
+1. Your application authenticates using an **API key**.
+2. You make requests to the **REST API** to read or modify resources.
+3. Google sends **webhook events** to your endpoint when resources change.
+4. You query the **search endpoint** to find resources matching your criteria.
+
+## Key resources
+
+<CardGroup cols={2}>
+  <Card title="Accounts" icon="user" href="/concepts/accounts">
+    Represent users or organizations within the platform. Accounts own other resources.
+  </Card>
+  <Card title="API Keys" icon="key" href="/concepts/api-keys">
+    Credentials that authenticate your integration. Scoped to specific permissions.
+  </Card>
+  <Card title="Webhooks" icon="bolt" href="/guides/webhooks">
+    HTTP callbacks that notify your app when events occur in real time.
+  </Card>
+  <Card title="Search" icon="magnifying-glass" href="/api-reference/search">
+    A unified query interface to find any resource across the platform.
+  </Card>
+</CardGroup>
+
+## Request lifecycle
+
+Every API request goes through the same lifecycle:
+
+1. **Authentication** — The API key is validated against your account.
+2. **Authorization** — The key's scopes are checked against the requested operation.
+3. **Rate limiting** — The request is counted against your quota.
+4. **Processing** — The operation is executed and the result is returned.
+5. **Events** — If the operation modifies data, a webhook event is emitted to any registered listeners.
+
+## Pagination
+
+List endpoints return paginated results. Use the `page` and `per_page` query parameters to navigate:
+
+```http
+GET /v1/accounts?page=2&per_page=25
+```
+
+Every list response includes metadata:
+
+```json
+{
+  "data": [...],
+  "total": 87,
+  "page": 2,
+  "per_page": 25
+}
+```
+
+## Rate limits
+
+API requests are rate-limited per API key. The default limits are:
+
+| Tier | Requests / minute | Requests / day |
+|---|---|---|
+| Free | 60 | 1,000 |
+| Pro | 600 | 50,000 |
+| Enterprise | Unlimited | Unlimited |
+
+When you exceed the limit, the API returns `429 Too Many Requests`. The response includes a `Retry-After` header indicating when you can resume.

@@ -1,13 +1,11 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
+  "projectType": "saas",
+  "projectName": "Google",
+  "projectDescription": "A comprehensive platform offering search, productivity, and developer tools accessible via simple APIs and integrations.",
   "theme": "almond",
-  "name": "Google",
-  "colors": {
-    "primary": "#ef7025",
-    "light": "#eec9bc",
-    "dark": "#4fa1ab"
-  },
-  "favicon": "/favicon.svg",
+  "primaryColor": "#ef7025",
+  "lightColor": "#eec9bc",
+  "darkColor": "#4fa1ab",
   "navigation": {
     "tabs": [
       {
@@ -15,7 +13,7 @@
         "groups": [
           {
             "group": "Get Started",
-            "pages": ["index", "quickstart", "authentication"]
+            "pages": ["introduction", "quickstart", "authentication"]
           },
           {
             "group": "Core Concepts",
@@ -46,14 +44,22 @@
       }
     ]
   },
-  "navbar": {
-    "primary": {
-      "type": "button",
-      "label": "Get Started",
-      "href": "/quickstart"
-    }
-  },
-  "footer": {
-    "socials": {}
-  }
+  "keyFeatures": [
+    "REST API access",
+    "Webhook event delivery",
+    "API key authentication",
+    "Search and query capabilities",
+    "Account management",
+    "Integration support"
+  ],
+  "publicApiSurface": [
+    "GET /search",
+    "GET /accounts",
+    "POST /accounts",
+    "GET /accounts/{id}",
+    "PATCH /accounts/{id}",
+    "POST /webhooks",
+    "GET /webhooks",
+    "DELETE /webhooks/{id}"
+  ]
 }

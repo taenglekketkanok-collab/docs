@@ -1,0 +1,71 @@
+---
+title: "Connect third-party integrations with Google"
+sidebarTitle: "Integrations"
+description: "Link Google with your existing tools — Slack, Zapier, and more — to automate workflows and centralize event notifications without writing custom code."
+---
+
+Google's integrations connect the platform to the tools your team already uses. You can forward event notifications to Slack, trigger automations in Zapier, or build custom workflows using webhooks — all from the **Settings → Integrations** dashboard.
+
+## Available integrations
+
+<CardGroup cols={2}>
+  <Card title="Slack" icon="slack" href="#slack">
+    Receive account and API event notifications directly in a Slack channel.
+  </Card>
+  <Card title="Zapier" icon="bolt" href="#zapier">
+    Connect Google events to thousands of apps without writing any code.
+  </Card>
+  <Card title="Webhooks" icon="code" href="/guides/webhooks">
+    Build custom integrations that receive real-time POST payloads.
+  </Card>
+  <Card title="REST API" icon="square-terminal" href="/api-reference/overview">
+    Build fully custom integrations using the Google REST API.
+  </Card>
+</CardGroup>
+
+## Slack
+
+The Slack integration sends formatted event notifications to any channel in your workspace.
+
+<Steps>
+  <Step title="Open Integrations">
+    In your Google dashboard, navigate to **Settings → Integrations** and click **Connect** next to Slack.
+  </Step>
+  <Step title="Authorize the app">
+    You are redirected to Slack's authorization page. Select the workspace and channel where you want to receive notifications, then click **Allow**.
+  </Step>
+  <Step title="Choose events">
+    Back in the Google dashboard, select which events should appear in Slack (e.g., account created, webhook failure, rate limit warning).
+  </Step>
+  <Step title="Test the connection">
+    Click **Send Test Message** to confirm a test notification appears in the selected channel.
+  </Step>
+</Steps>
+
+To disconnect, click **Disconnect** on the Slack integration card. Google will immediately stop sending notifications to Slack.
+
+## Zapier
+
+The Zapier integration exposes Google events as Zapier triggers, letting you connect them to over 6,000 apps.
+
+<Steps>
+  <Step title="Find the Google app">
+    Log in to [zapier.com](https://zapier.com) and search for **Google** in the app directory.
+  </Step>
+  <Step title="Create a Zap">
+    Click **Create Zap**, choose **Google** as the trigger app, and select an event type (e.g., **Account Created**).
+  </Step>
+  <Step title="Connect your account">
+    When prompted, enter your Google API key to authorize the Zapier integration.
+  </Step>
+  <Step title="Configure the action">
+    Choose the action app (e.g., send an email, create a row in Google Sheets) and map the trigger data to the action fields.
+  </Step>
+  <Step title="Activate the Zap">
+    Turn on the Zap. Google will now send events to Zapier every time the trigger fires.
+  </Step>
+</Steps>
+
+## Custom integrations
+
+For any integration not covered by the built-in connectors, use the [REST API](/api-reference/overview) or [webhooks](/guides/webhooks) directly. Webhooks deliver real-time POST payloads to any HTTPS endpoint you control, giving you full flexibility to integrate with internal systems, custom workflows, or any HTTP-capable service.

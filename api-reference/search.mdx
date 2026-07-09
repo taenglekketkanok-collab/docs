@@ -1,0 +1,103 @@
+---
+title: "GET /search — query the Google platform index"
+sidebarTitle: "Search"
+description: "GET /v1/search — full-text search across all platform resources. Accepts query string and filter parameters, returns paginated results with ranking scores."
+---
+
+The `/v1/search` endpoint lets you query the platform's index with full-text search and optional filters. Results are returned in relevance order and support pagination.
+
+## Endpoint
+
+```
+GET https://api.google.com/v1/search
+```
+
+**Required scope:** `search:read`
+
+## Query parameters
+
+<ParamField query="q" type="string" required>
+  The full-text search query. Supports quoted phrases (`"exact phrase"`) and exclusions (`-term`).
+</ParamField>
+
+<ParamField query="type" type="string">
+  Filter results by resource type. Accepted values: `account`. Omit to search all types.
+</ParamField>
+
+<ParamField query="page" type="integer">
+  Page number to retrieve. Defaults to `1`.
+</ParamField>
+
+<ParamField query="per_page" type="integer">
+  Number of results per page. Defaults to `10`, maximum `100`.
+</ParamField>
+
+## Request example
+
+```bash curl
+curl "https://api.google.com/v1/search?q=acme&type=account&page=1&per_page=10" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Response
+
+```json 200 OK
+{
+  "results": [
+    {
+      "id": "acc_01abc123",
+      "type": "account",
+      "title": "Acme Corp",
+      "snippet": "Acme Corp is a pro-tier account created on Jan 15, 2024.",
+      "score": 0.97
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "per_page": 10
+}
+```
+
+### Response fields
+
+<ResponseField name="results" type="array">
+  Array of matching resource objects.
+
+  <Expandable title="result object fields">
+    <ResponseField name="id" type="string">
+      Unique identifier of the matching resource.
+    </ResponseField>
+    <ResponseField name="type" type="string">
+      Resource type (e.g., `account`).
+    </ResponseField>
+    <ResponseField name="title" type="string">
+      Human-readable title for the result.
+    </ResponseField>
+    <ResponseField name="snippet" type="string">
+      Contextual excerpt showing where the query matched.
+    </ResponseField>
+    <ResponseField name="score" type="number">
+      Relevance score between `0` and `1`. Higher is more relevant.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="total" type="integer">
+  Total number of matching results across all pages.
+</ResponseField>
+
+<ResponseField name="page" type="integer">
+  Current page number.
+</ResponseField>
+
+<ResponseField name="per_page" type="integer">
+  Number of results returned per page.
+</ResponseField>
+
+## Error responses
+
+| Status | Code | Description |
+|---|---|---|
+| `400` | `validation_error` | The `q` parameter is missing or empty |
+| `401` | `unauthorized` | Invalid or missing API key |
+| `403` | `insufficient_scope` | Key lacks `search:read` scope |

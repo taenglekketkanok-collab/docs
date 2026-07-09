@@ -1,0 +1,70 @@
+---
+title: "API keys: credentials for platform access"
+sidebarTitle: "API Keys"
+description: "API keys authenticate your integration with Google. Learn about key scopes, rotation, storage best practices, and how keys relate to accounts."
+---
+
+API keys are the credentials your application uses to authenticate with the Google platform. Each key belongs to an account, carries a set of permission scopes, and is included in every API request as a Bearer token.
+
+## Key object
+
+```json
+{
+  "id": "key_01xyz789",
+  "name": "Production Key",
+  "prefix": "gk_prod_...",
+  "scopes": ["search:read", "accounts:read"],
+  "status": "active",
+  "last_used_at": "2024-06-10T14:22:00Z",
+  "created_at": "2024-01-15T10:30:00Z"
+}
+```
+
+<Warning>The full key value is only shown once, at creation time. Store it securely — it cannot be retrieved again after the creation response.</Warning>
+
+## Available scopes
+
+Scopes control what each key is allowed to do:
+
+| Scope | Access |
+|---|---|
+| `search:read` | Query the search endpoint |
+| `accounts:read` | Read account details |
+| `accounts:write` | Create and modify accounts |
+| `webhooks:manage` | Create, list, and delete webhooks |
+
+Assign only the scopes your integration actually needs. You can create multiple keys — for example, one key with `search:read` for your query service and another with `accounts:write` for your provisioning service.
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Use environment variables" icon="lock">
+    Store keys in environment variables (e.g., `GOOGLE_API_KEY`) and load them at runtime — never hardcode in source files.
+  </Card>
+  <Card title="Scope minimally" icon="shield">
+    Grant only the scopes each key needs. A compromised key with limited scopes causes less damage.
+  </Card>
+  <Card title="Rotate regularly" icon="arrows-rotate">
+    Create a new key, deploy it, then revoke the old one. Rotation reduces exposure from undetected leaks.
+  </Card>
+  <Card title="Name descriptively" icon="tag">
+    Use names that identify the environment and purpose (e.g., `prod-search-service`, `staging-provisioner`).
+  </Card>
+</CardGroup>
+
+## Rotate a key
+
+<Steps>
+  <Step title="Create the new key">
+    Go to **Settings → API Keys** and create a new key with the same scopes as the one you are replacing.
+  </Step>
+  <Step title="Deploy the new key">
+    Update your application's environment variable or secret manager with the new key value and deploy.
+  </Step>
+  <Step title="Verify operation">
+    Confirm your application is making successful requests with the new key by checking logs or the dashboard.
+  </Step>
+  <Step title="Revoke the old key">
+    In **Settings → API Keys**, click **Revoke** next to the old key. Requests using the revoked key will immediately receive `401`.
+  </Step>
+</Steps>

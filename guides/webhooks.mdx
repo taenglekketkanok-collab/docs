@@ -1,0 +1,98 @@
+---
+title: "Receive real-time events with Google webhooks"
+sidebarTitle: "Webhooks"
+description: "Configure webhook endpoints to receive instant notifications when accounts are created, updated, or deleted on the Google platform."
+---
+
+Webhooks let the Google platform push real-time event notifications to your application. Instead of polling the API for changes, you register an HTTPS endpoint and Google sends a POST request to it whenever a relevant event occurs.
+
+## How webhooks work
+
+1. You register a webhook with your HTTPS endpoint URL and a list of event types.
+2. When an event occurs, Google sends a `POST` request to your endpoint with a JSON payload.
+3. Your endpoint must respond with `HTTP 200` within **5 seconds** to confirm delivery.
+4. If Google does not receive a `200` response, it retries the delivery up to **5 times** with exponential backoff.
+
+## Register a webhook
+
+```bash curl
+curl -X POST "https://api.google.com/v1/webhooks" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://your-app.com/webhooks/google",
+    "events": ["account.created", "account.updated", "account.deleted"]
+  }'
+```
+
+Response:
+
+```json
+{
+  "id": "wh_01def456",
+  "url": "https://your-app.com/webhooks/google",
+  "events": ["account.created", "account.updated", "account.deleted"],
+  "status": "active",
+  "created_at": "2024-06-10T12:00:00Z"
+}
+```
+
+## Available events
+
+| Event | Triggered when |
+|---|---|
+| `account.created` | A new account is created |
+| `account.updated` | An account's details are modified |
+| `account.deleted` | An account is closed or deleted |
+| `key.created` | A new API key is generated |
+| `key.revoked` | An API key is revoked |
+
+## Event payload structure
+
+Every webhook delivery has the same envelope structure:
+
+```json
+{
+  "id": "evt_01ghi789",
+  "type": "account.updated",
+  "created_at": "2024-06-10T14:30:00Z",
+  "data": {
+    "id": "acc_01abc123",
+    "name": "Acme Corp",
+    "email": "admin@acme.com",
+    "plan": "pro",
+    "status": "active",
+    "updated_at": "2024-06-10T14:30:00Z"
+  }
+}
+```
+
+## Retry behavior
+
+If your endpoint returns any status other than `2xx`, or doesn't respond within 5 seconds, Google retries delivery on this schedule:
+
+| Attempt | Delay |
+|---|---|
+| 1st retry | 1 minute |
+| 2nd retry | 5 minutes |
+| 3rd retry | 30 minutes |
+| 4th retry | 2 hours |
+| 5th retry | 8 hours |
+
+After 5 failed retries, the event is marked as undelivered. You can view failed deliveries in the dashboard under **Webhooks → Delivery Logs**.
+
+<Tip>Make your webhook handler idempotent — the same event may be delivered more than once due to retries. Use the event `id` to deduplicate.</Tip>
+
+## Manage webhooks
+
+**List all webhooks:**
+```bash
+curl "https://api.google.com/v1/webhooks" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+**Delete a webhook:**
+```bash
+curl -X DELETE "https://api.google.com/v1/webhooks/wh_01def456" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```

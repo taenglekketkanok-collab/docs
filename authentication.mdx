@@ -1,0 +1,74 @@
+---
+title: "Authenticate requests to the Google API"
+sidebarTitle: "Authentication"
+description: "Learn how to create and manage API keys, pass them in requests, and handle authentication errors from the Google platform."
+---
+
+Google authenticates every API request using API keys. You include your key in the `Authorization` header of each request as a Bearer token. This page explains how to create keys, manage them safely, and understand authentication errors.
+
+## Get an API key
+
+<Steps>
+  <Step title="Open API Keys settings">
+    Log in to your Google dashboard and navigate to **Settings → API Keys**.
+  </Step>
+  <Step title="Create a new key">
+    Click **Create Key**, enter a descriptive name, and select the permission scopes your integration needs. Click **Save**.
+  </Step>
+  <Step title="Copy your key">
+    The key is shown once at creation time. Copy it immediately and store it securely — you cannot retrieve it again.
+
+    <Warning>If you lose your API key, you must revoke it and generate a new one. There is no way to display an existing key after it has been created.</Warning>
+  </Step>
+</Steps>
+
+## Pass your key in requests
+
+Include your API key as a Bearer token in the `Authorization` header on every request:
+
+```http
+GET /v1/search?q=example HTTP/1.1
+Host: api.google.com
+Authorization: Bearer YOUR_API_KEY
+Content-Type: application/json
+```
+
+<Tip>Store your API key as an environment variable (e.g., `GOOGLE_API_KEY`) rather than hardcoding it in source files or committing it to version control.</Tip>
+
+## Key scopes
+
+When creating an API key, choose the scopes that match what your integration needs:
+
+| Scope | Description |
+|---|---|
+| `search:read` | Query the search endpoint |
+| `accounts:read` | Read account information |
+| `accounts:write` | Create and update accounts |
+| `webhooks:manage` | Create, list, and delete webhooks |
+
+Grant only the scopes your application requires. You can create multiple keys with different scope sets for different parts of your system.
+
+## Rotate and revoke keys
+
+To rotate a key, create a new key first, update your application to use it, then revoke the old key from **Settings → API Keys** by clicking **Revoke** next to it.
+
+## Authentication errors
+
+| HTTP Status | Error Code | Meaning |
+|---|---|---|
+| `401` | `unauthorized` | No API key provided, or the key is invalid |
+| `401` | `key_expired` | The API key has expired |
+| `403` | `insufficient_scope` | The key does not have the required scope |
+| `429` | `rate_limit_exceeded` | Too many requests — back off and retry |
+
+Example error response:
+
+```json
+{
+  "error": {
+    "code": "unauthorized",
+    "message": "Invalid API key. Check that your key is correct and has not been revoked.",
+    "status": 401
+  }
+}
+```

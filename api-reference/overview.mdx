@@ -1,0 +1,71 @@
+---
+title: "Google REST API reference and base URL"
+sidebarTitle: "Overview"
+description: "The Google REST API exposes endpoints for search, accounts, and webhooks. All requests use JSON over HTTPS with Bearer token authentication."
+---
+
+The Google REST API gives you programmatic access to all platform capabilities — search, account management, and webhook configuration. All requests go over HTTPS, accept and return JSON, and authenticate with Bearer tokens.
+
+## Base URL
+
+```
+https://api.google.com/v1
+```
+
+All endpoint paths in this reference are relative to this base URL.
+
+## Request format
+
+All API requests must include:
+
+| Header | Value |
+|---|---|
+| `Authorization` | `Bearer YOUR_API_KEY` |
+| `Content-Type` | `application/json` (for POST/PATCH requests) |
+
+Example:
+
+```http
+POST /v1/accounts HTTP/1.1
+Host: api.google.com
+Authorization: Bearer YOUR_API_KEY
+Content-Type: application/json
+
+{ "name": "Acme Corp", "email": "admin@acme.com" }
+```
+
+## Response format
+
+All responses return JSON. Successful responses have HTTP `2xx` status codes. Errors follow a standard structure:
+
+```json
+{
+  "error": {
+    "code": "not_found",
+    "message": "Resource was not found.",
+    "status": 404,
+    "request_id": "req_01jkl012"
+  }
+}
+```
+
+## Versioning
+
+The current API version is **v1**. Backward-incompatible changes will be released as a new major version (e.g., `/v2`). The previous version remains available for at least 12 months after a new major version is released.
+
+## Available endpoints
+
+<CardGroup cols={2}>
+  <Card title="Search" icon="magnifying-glass" href="/api-reference/search">
+    Query the platform search index with full-text and filtered queries.
+  </Card>
+  <Card title="Accounts" icon="user" href="/api-reference/accounts">
+    Create, read, update, and list accounts.
+  </Card>
+  <Card title="Webhooks" icon="bolt" href="/api-reference/webhooks">
+    Register and manage webhook endpoints.
+  </Card>
+  <Card title="Authentication" icon="key" href="/api-reference/authentication">
+    Authenticate requests and understand key scopes.
+  </Card>
+</CardGroup>

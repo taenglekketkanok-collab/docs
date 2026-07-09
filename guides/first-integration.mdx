@@ -1,0 +1,167 @@
+---
+title: "Build your first Google platform integration"
+sidebarTitle: "First Integration"
+description: "Follow this end-to-end guide to connect your application to Google's API, handle responses, and build a reliable integration from day one."
+---
+
+This guide walks you through building a complete integration with the Google platform. You'll authenticate, query the search endpoint, handle paginated results, and set up webhook event delivery — giving you a fully functional foundation to build on.
+
+## Prerequisites
+
+Before you begin:
+- A Google account (sign up at [google.com](https://google.com))
+- An API key with `search:read` and `webhooks:manage` scopes ([create one here](/authentication))
+- Node.js 18+, Python 3.10+, or any HTTP client
+
+## Step 1: Set up your environment
+
+Store your API key as an environment variable:
+
+<CodeGroup>
+```bash macOS / Linux
+export GOOGLE_API_KEY="your_api_key_here"
+```
+```powershell Windows
+$env:GOOGLE_API_KEY = "your_api_key_here"
+```
+</CodeGroup>
+
+## Step 2: Query the search endpoint
+
+Make a search request to confirm your key is working:
+
+<CodeGroup>
+```javascript Node.js
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+
+async function search(query) {
+  const url = new URL('https://api.google.com/v1/search');
+  url.searchParams.set('q', query);
+
+  const response = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${GOOGLE_API_KEY}`,
+      'Content-Type': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`API error ${response.status}: ${error.error.message}`);
+  }
+
+  return response.json();
+}
+
+const results = await search('hello world');
+console.log(`Found ${results.total} results`);
+```
+```python Python
+import os
+import requests
+
+GOOGLE_API_KEY = os.environ['GOOGLE_API_KEY']
+
+def search(query: str) -> dict:
+    response = requests.get(
+        'https://api.google.com/v1/search',
+        params={'q': query},
+        headers={'Authorization': f'Bearer {GOOGLE_API_KEY}'}
+    )
+    response.raise_for_status()
+    return response.json()
+
+results = search('hello world')
+print(f"Found {results['total']} results")
+```
+</CodeGroup>
+
+## Step 3: Handle pagination
+
+For queries that return many results, iterate through pages:
+
+```javascript Node.js
+async function searchAll(query) {
+  const allResults = [];
+  let page = 1;
+
+  while (true) {
+    const url = new URL('https://api.google.com/v1/search');
+    url.searchParams.set('q', query);
+    url.searchParams.set('page', page);
+    url.searchParams.set('per_page', 50);
+
+    const response = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${GOOGLE_API_KEY}` }
+    });
+    const data = await response.json();
+
+    allResults.push(...data.results);
+
+    if (allResults.length >= data.total) break;
+    page++;
+  }
+
+  return allResults;
+}
+```
+
+## Step 4: Register a webhook
+
+Set up a webhook endpoint so Google can notify your application of events:
+
+```javascript Node.js
+async function registerWebhook(url) {
+  const response = await fetch('https://api.google.com/v1/webhooks', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${GOOGLE_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      url,
+      events: ['account.created', 'account.updated']
+    })
+  });
+
+  return response.json();
+}
+
+const webhook = await registerWebhook('https://your-app.com/webhooks/google');
+console.log('Webhook ID:', webhook.id);
+```
+
+## Step 5: Handle incoming events
+
+Your webhook endpoint receives POST requests with an event payload:
+
+```javascript Express.js handler
+app.post('/webhooks/google', express.json(), (req, res) => {
+  const event = req.body;
+
+  switch (event.type) {
+    case 'account.created':
+      console.log('New account:', event.data.id);
+      break;
+    case 'account.updated':
+      console.log('Updated account:', event.data.id);
+      break;
+  }
+
+  // Always respond with 200 to acknowledge receipt
+  res.sendStatus(200);
+});
+```
+
+<Note>Always respond to webhook requests with a `200` status within 5 seconds. If your handler takes longer, acknowledge immediately and process asynchronously.</Note>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Webhooks" icon="bolt" href="/guides/webhooks">
+    Learn about all available events, retry behavior, and signature verification.
+  </Card>
+  <Card title="Error Handling" icon="triangle-exclamation" href="/guides/error-handling">
+    Make your integration resilient with proper error handling and retries.
+  </Card>
+</CardGroup>

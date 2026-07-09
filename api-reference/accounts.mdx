@@ -1,0 +1,172 @@
+---
+title: "Accounts API — create, read, and update accounts"
+sidebarTitle: "Accounts"
+description: "REST endpoints for managing accounts: GET /accounts, POST /accounts, GET /accounts/{id}, and PATCH /accounts/{id}. Includes request and response examples."
+---
+
+The Accounts API provides endpoints to list, create, retrieve, and update accounts on the Google platform. All write operations require the `accounts:write` scope; read operations require `accounts:read`.
+
+## List accounts
+
+```
+GET https://api.google.com/v1/accounts
+```
+
+**Required scope:** `accounts:read`
+
+### Query parameters
+
+<ParamField query="page" type="integer">
+  Page number. Defaults to `1`.
+</ParamField>
+
+<ParamField query="per_page" type="integer">
+  Results per page. Defaults to `20`, maximum `100`.
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter by account status: `active`, `suspended`, or `closed`.
+</ParamField>
+
+### Example
+
+```bash curl
+curl "https://api.google.com/v1/accounts?status=active&per_page=20" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```json 200 OK
+{
+  "data": [
+    {
+      "id": "acc_01abc123",
+      "name": "Acme Corp",
+      "email": "admin@acme.com",
+      "plan": "pro",
+      "status": "active",
+      "created_at": "2024-01-15T10:30:00Z",
+      "updated_at": "2024-06-01T08:00:00Z"
+    }
+  ],
+  "total": 47,
+  "page": 1,
+  "per_page": 20
+}
+```
+
+---
+
+## Create account
+
+```
+POST https://api.google.com/v1/accounts
+```
+
+**Required scope:** `accounts:write`
+
+### Request body
+
+<ParamField body="name" type="string" required>
+  Display name for the account.
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  Primary email address. Must be unique across the platform.
+</ParamField>
+
+<ParamField body="plan" type="string">
+  Subscription plan: `free` (default), `pro`, or `enterprise`.
+</ParamField>
+
+### Example
+
+```bash curl
+curl -X POST "https://api.google.com/v1/accounts" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Acme Corp", "email": "admin@acme.com", "plan": "free"}'
+```
+
+```json 201 Created
+{
+  "id": "acc_01abc123",
+  "name": "Acme Corp",
+  "email": "admin@acme.com",
+  "plan": "free",
+  "status": "active",
+  "created_at": "2024-06-10T12:00:00Z",
+  "updated_at": "2024-06-10T12:00:00Z"
+}
+```
+
+---
+
+## Get account
+
+```
+GET https://api.google.com/v1/accounts/{id}
+```
+
+**Required scope:** `accounts:read`
+
+### Path parameters
+
+<ParamField path="id" type="string" required>
+  The account ID (prefixed with `acc_`).
+</ParamField>
+
+### Example
+
+```bash curl
+curl "https://api.google.com/v1/accounts/acc_01abc123" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+---
+
+## Update account
+
+```
+PATCH https://api.google.com/v1/accounts/{id}
+```
+
+**Required scope:** `accounts:write`
+
+### Path parameters
+
+<ParamField path="id" type="string" required>
+  The account ID to update.
+</ParamField>
+
+### Request body
+
+Include only the fields you want to change:
+
+<ParamField body="name" type="string">
+  New display name.
+</ParamField>
+
+<ParamField body="email" type="string">
+  New email address. Must be unique across the platform.
+</ParamField>
+
+### Example
+
+```bash curl
+curl -X PATCH "https://api.google.com/v1/accounts/acc_01abc123" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Acme Corp (Updated)"}'
+```
+
+```json 200 OK
+{
+  "id": "acc_01abc123",
+  "name": "Acme Corp (Updated)",
+  "email": "admin@acme.com",
+  "plan": "free",
+  "status": "active",
+  "created_at": "2024-06-10T12:00:00Z",
+  "updated_at": "2024-06-11T09:15:00Z"
+}
+```
