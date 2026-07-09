@@ -1,5 +1,5 @@
 ---
-title: "Accounts API — create, read, and update accounts"
+title: "Accounts API — List, Create, Retrieve, and Update Accounts"
 sidebarTitle: "Accounts"
 description: "REST endpoints for managing accounts: GET /accounts, POST /accounts, GET /accounts/{id}, and PATCH /accounts/{id}. Includes request and response examples."
 ---
@@ -120,6 +120,18 @@ GET https://api.google.com/v1/accounts/{id}
 ```bash curl
 curl "https://api.google.com/v1/accounts/acc_01abc123" \
   -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```json 200 OK
+{
+  "id": "acc_01abc123",
+  "name": "Acme Corp",
+  "email": "admin@acme.com",
+  "plan": "pro",
+  "status": "active",
+  "created_at": "2024-01-15T10:30:00Z",
+  "updated_at": "2024-06-01T08:00:00Z"
+}
 ```
 
 ---

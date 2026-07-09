@@ -1,5 +1,5 @@
 ---
-title: "How Google's platform works: core concepts"
+title: "Google platform: core concepts and architecture guide"
 sidebarTitle: "Overview"
 description: "Understand the building blocks of the Google platform — how requests flow, how data is organized, and how the key resources relate to each other."
 ---
@@ -47,7 +47,7 @@ Every API request goes through the same lifecycle:
 List endpoints return paginated results. Use the `page` and `per_page` query parameters to navigate:
 
 ```http
-GET /v1/accounts?page=2&per_page=25
+GET /accounts?page=2&per_page=25
 ```
 
 Every list response includes metadata:
